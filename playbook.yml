@@ -1,5 +1,10 @@
 - hosts: all
   become: true
+  pre_tasks:
+    - name: Force refresh apt cache before docker role
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 0
   roles:
     - role: geerlingguy.docker
       vars:
