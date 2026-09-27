@@ -1,20 +1,56 @@
 - hosts: all
   become: true
-  pre_tasks:
-    # 1. Включаем репозиторий universe, чтобы apt смог найти пакет python3-debian
-    - name: Enable Ubuntu universe repository
-      ansible.builtin.apt_repository:
-        repo: "deb http://ubuntu.com {{ ansible_distribution_release }} universe"
-        state: present
-      when: ansible_os_family == 'Debian'
+  collections:
+    - community.docker
 
-    # 2. Обновляем кэш apt, чтобы система увидела новые пакеты
-    - name: Update apt cache after adding universe
-      ansible.builtin.apt:
+  pre_tasks:
+    - name: Установка зависимостей для репозитория Docker
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
         update_cache: yes
-      when: ansible_os_family == 'Debian' 
+
+    - name: Создание директории для ключей APT
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Скачивание официального GPG-ключа Docker
+      get_url:
+        url: https://docker.com
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+
+    - name: Добавление репозитория Docker в APT-источники
+      apt_repository:
+        repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://docker.com {{ ansible_distribution_release }} stable" # <-- ИСПРАВЛЕНО: правильный URL репозитория
+        state: present
+        filename: docker
+
+    - name: Установка Docker Engine и Docker Compose
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+
+    - name: Проверка, что Docker запущен и включен в автозагрузку
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+
   roles:
-    - role: geerlingguy.docker
     - role: geerlingguy.nginx
       vars:
         nginx_proxy_cache_path: "/var/cache/nginx keys_zone=my_cache:10m max_size=1g"
