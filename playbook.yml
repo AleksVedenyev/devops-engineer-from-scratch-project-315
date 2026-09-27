@@ -1,13 +1,18 @@
 - hosts: all
   become: true
   pre_tasks:
-    # Этот шаг установит необходимую библиотеку в Python окружение контейнера/ВМ
-    - name: Install python-debian via pip to satisfy role dependencies
-      ansible.builtin.pip:
-        name: python-debian
+    # 1. Включаем репозиторий universe, чтобы apt смог найти пакет python3-debian
+    - name: Enable Ubuntu universe repository
+      ansible.builtin.apt_repository:
+        repo: "deb http://ubuntu.com {{ ansible_distribution_release }} universe"
         state: present
-      # Игнорируем ошибку, если на реальной ВМ это не потребуется или заблокировано
-      ignore_errors: true 
+      when: ansible_os_family == 'Debian'
+
+    # 2. Обновляем кэш apt, чтобы система увидела новые пакеты
+    - name: Update apt cache after adding universe
+      ansible.builtin.apt:
+        update_cache: yes
+      when: ansible_os_family == 'Debian' 
   roles:
     - role: geerlingguy.docker
     - role: geerlingguy.nginx
