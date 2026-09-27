@@ -5,6 +5,14 @@
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 0
+    - name: DEBUG - check package availability via raw apt-cache
+      ansible.builtin.command: apt-cache policy python3-debian
+      register: apt_check
+      changed_when: false
+
+    - name: DEBUG - show result
+      ansible.builtin.debug:
+        var: apt_check.stdout
   roles:
     - role: geerlingguy.docker
       vars:
