@@ -1,9 +1,15 @@
 - hosts: all
   become: true
+  pre_tasks:
+    # Этот шаг установит необходимую библиотеку в Python окружение контейнера/ВМ
+    - name: Install python-debian via pip to satisfy role dependencies
+      ansible.builtin.pip:
+        name: python-debian
+        state: present
+      # Игнорируем ошибку, если на реальной ВМ это не потребуется или заблокировано
+      ignore_errors: true 
   roles:
     - role: geerlingguy.docker
-      vars:
-        ansible_os_family: "{{ 'RedHat' if inventory_hostname == 'localhost' else ansible_facts.os_family }}"
     - role: geerlingguy.nginx
       vars:
         nginx_proxy_cache_path: "/var/cache/nginx keys_zone=my_cache:10m max_size=1g"
