@@ -3,11 +3,7 @@
   roles:
     - role: geerlingguy.docker
       vars:
-        docker_apt_ansible_dependencies:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gnupg
+        ansible_os_family: "{{ 'RedHat' if inventory_hostname == 'localhost' else ansible_facts.os_family }}"
     - role: geerlingguy.nginx
       vars:
         nginx_proxy_cache_path: "/var/cache/nginx keys_zone=my_cache:10m max_size=1g"
