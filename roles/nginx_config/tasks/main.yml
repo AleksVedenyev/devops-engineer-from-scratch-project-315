@@ -1,0 +1,24 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for nginx_config
+- name: Remove default Nginx vhost
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Copy proxy_params configuration
+  ansible.builtin.template:
+    src: proxy_params.j2
+    dest: /etc/nginx/proxy_params
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy nginx conf file to remote host
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/conf.d/aleks-devops.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Nginx reload

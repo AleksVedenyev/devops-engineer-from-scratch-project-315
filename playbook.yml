@@ -8,35 +8,23 @@
     - role: geerlingguy.certbot
       vars:
         certbot_auto_renew: true
-        certbot_auto_renew_user: "{{ user | default(lookup('env', 'USER')) }}"
+        certbot_auto_renew_user: root
         certbot_auto_renew_hour: "3"
         certbot_auto_renew_minute: "30"
-        certbot_auto_renew_options: "--quiet"
+        certbot_auto_renew_options: "--quiet --deploy-hook 'systemctl reload nginx'"
+        certbot_create_method: webroot
         certbot_create_if_missing: True
         certbot_admin_email: aleks.vedenev@gmail.com
         certbot_certs:
           - name: aleks-devops.ru
+            webroot: "/var/www/html"
             domains:
               - aleks-devops.ru
               - www.aleks-devops.ru
-        certbot_create_standalone_stop_services:
-          - nginx
+    - role: nginx_config
+    - role: ufw_rules
 
   tasks:
-    - name: Remove default Nginx vhost
-      ansible.builtin.file:
-        path: /etc/nginx/sites-enabled/default
-        state: absent
-
-    - name: Copy nginx conf file to remote host
-      ansible.builtin.copy:
-        src: files/my_domain.conf   
-        dest: /etc/nginx/conf.d/my_domain.conf
-        owner: root
-        group: root
-        mode: '0644'
-      notify: Nginx reload
-
     - name: Add user to docker group
       ansible.builtin.user:
         name: "{{ user }}"
@@ -45,25 +33,6 @@
         groups: docker
         append: true
 
-    - name: UFW allow SSH
-      community.general.ufw:
-        rule: allow
-        port: '22'
-        proto: tcp
 
-    - name: UFW allow HTTPS
-      community.general.ufw:
-        rule: allow
-        port: '443'
-        proto: tcp
-    
-    - name: Deny everything and enable UFW
-      community.general.ufw:
-        policy: deny
-        state: enabled
 
-  handlers:
-    - name: Nginx reload
-      service:
-        name: nginx
-        state: reloaded
+

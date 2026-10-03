@@ -1,0 +1,7 @@
+#SPDX-License-Identifier: MIT-0
+---
+# defaults file for nginx_config
+nginx_server_port: "80"
+nginx_https_server_port: "443"
+nginx_domain_name: "aleks-devops.ru"
+nginx_root_dir: "/var/www/html"

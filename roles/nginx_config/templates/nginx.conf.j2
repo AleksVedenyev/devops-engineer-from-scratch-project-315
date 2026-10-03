@@ -1,0 +1,52 @@
+server {
+    listen {{ nginx_server_port }}
+
+    server_name {{ nginx_domain_name }} www.{{ nginx_domain_name }};
+
+    location /.well-known/acme-challenge/ {
+        root {{ nginx_root_dir }};
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen {{ nginx_https_server_port }} ssl http2;
+
+    server_name {{ nginx_domain_name }} www.{{ nginx_domain_name }};
+
+    ssl_certificate     /etc/letsencrypt/live/{{ nginx_domain_name }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ nginx_domain_name }}/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        include proxy_params;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8080;
+        include proxy_params;
+    }
+
+    location /actuator/ {
+        proxy_pass http://127.0.0.1:8080;
+        include proxy_params;
+    }
+
+    location /swagger-ui/ {
+        proxy_pass http://127.0.0.1:8080;
+        include proxy_params;
+    }
+
+    location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|webp|woff|woff2|ttf)$ {
+        proxy_pass http://127.0.0.1:8080;
+        include proxy_params;
+
+        expires 3d;
+        add_header Cache-Control "public, no-transform";
+    }
+}

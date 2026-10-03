@@ -1,0 +1,19 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for ufw_rules
+- name: UFW allow SSH
+  community.general.ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+
+- name: UFW allow HTTPS
+  community.general.ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+    
+- name: Deny everything and enable UFW
+  community.general.ufw:
+    policy: deny
+    state: enabled
