@@ -1,4 +1,0 @@
-- hosts: webservers
-  become: true
-  roles:
-    - role: deploy

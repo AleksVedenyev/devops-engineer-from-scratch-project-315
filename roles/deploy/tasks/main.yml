@@ -1,25 +1,23 @@
-#SPDX-License-Identifier: MIT-0
----
-# tasks file for deploy
 - name: Pull an image
   community.docker.docker_image_pull:
-    name: "{{ image_name }}"
+    name: "{{ deploy_image_name }}"
 
 - name: Start a container
   community.docker.docker_container:
-      name: project-devops-deploy
-      image: "{{ image_name }}"
+      name: "{{ deploy_container_name }}"
+      image: "{{ deploy_image_name }}"
       state: started
       restart_policy: always
       ports:
-        - "127.0.0.1:8080:8080"
+        - "{{ app_loopback_host }}:{{ app_loopback_port }}:{{ app_loopback_port }}"
       env:
-        SPRING_PROFILES_ACTIVE: "prod"
-        SPRING_DATASOURCE_URL: "jdbc:postgresql://rc1a-knp27jjb37mp8r82.mdb.yandexcloud.net:6432/bulletins?targetServerType=master&sslmode=require"
-        SPRING_DATASOURCE_USERNAME: "{{ SPRING_DATASOURCE_USERNAME }}"
-        SPRING_DATASOURCE_PASSWORD: "{{ SPRING_DATASOURCE_PASSWORD }}"
-        STORAGE_S3_ACCESSKEY: "{{ STORAGE_S3_ACCESSKEY}}"
-        STORAGE_S3_SECRETKEY: "{{ STORAGE_S3_SECRETKEY }}"
-        STORAGE_S3_REGION: "ru-central1"
-        STORAGE_S3_BUCKET: "prod-users-files"
-        STORAGE_S3_ENDPOINT: "https://storage.yandexcloud.net"
+        SPRING_PROFILES_ACTIVE: "{{ deploy_spring_profiles_active }}"
+        SPRING_DATASOURCE_URL: "{{ deploy_spring_datasource_url }}"
+        SPRING_DATASOURCE_USERNAME: "{{ vault_spring_datasource_username }}"
+        SPRING_DATASOURCE_PASSWORD: "{{ vault_spring_datasource_password }}"
+        STORAGE_S3_ACCESSKEY: "{{ vault_storage_s3_accesskey }}"
+        STORAGE_S3_SECRETKEY: "{{ vault_storage_s3_secretkey }}"
+        STORAGE_S3_REGION: "{{ deploy_storage_s3_region }}"
+        STORAGE_S3_BUCKET: "{{ deploy_storage_s3_bucket }}"
+        STORAGE_S3_ENDPOINT: "{{ deploy_storage_s3_endpoint }}"
+  no_log: true
