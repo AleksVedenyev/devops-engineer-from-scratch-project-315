@@ -5,7 +5,7 @@
     - { role: geerlingguy.nginx, tags: [setup] }
     - { role: nginx_config, tags: [setup] }
     - role: geerlingguy.certbot
-      tags: setup
+      tags: [setup]
       vars:
         certbot_auto_renew: true
         certbot_auto_renew_user: root
@@ -27,11 +27,12 @@
   tasks:
     - name: Add user to docker group
       ansible.builtin.user:
-        name: "{{ app_user | default 'deploy' }}"
+        name: "{{ app_user | default('deploy') }}"
         create_home: true
         shell: /bin/bash
         groups: docker
         append: true
+      tags: [setup]
 
 
 

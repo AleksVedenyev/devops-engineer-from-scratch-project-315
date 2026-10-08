@@ -7,4 +7,4 @@ setup:
 	ansible-playbook playbook.yml --tags setup
 
 deploy:
-	ansible-playbook playbook.yml --tags deploy -e "image_tag=$(IMAGE_TAG)"
+	ansible-playbook playbook.yml --tags deploy -e "deploy_image_tag=$(IMAGE_TAG)"

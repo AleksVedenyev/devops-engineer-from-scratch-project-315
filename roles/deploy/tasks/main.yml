@@ -9,7 +9,7 @@
       state: started
       restart_policy: always
       ports:
-        - "{{ app_loopback_host }}:{{ app_loopback_port }}:{{ app_loopback_port }}"
+        - "{{ deploy_app_loopback_host }}:{{ deploy_app_loopback_port }}:{{ deploy_app_loopback_port }}"
       env:
         SPRING_PROFILES_ACTIVE: "{{ deploy_spring_profiles_active }}"
         SPRING_DATASOURCE_URL: "{{ deploy_spring_datasource_url }}"
@@ -21,3 +21,11 @@
         STORAGE_S3_BUCKET: "{{ deploy_storage_s3_bucket }}"
         STORAGE_S3_ENDPOINT: "{{ deploy_storage_s3_endpoint }}"
   no_log: true
+
+- name: Application is running
+  ansible.builtin.uri:
+    url: "http://{{ deploy_app_loopback_host }}:{{ deploy_app_loopback_port }}/api/bulletins"
+  register: result
+  until: result.status == 200
+  retries: 6
+  delay: 10

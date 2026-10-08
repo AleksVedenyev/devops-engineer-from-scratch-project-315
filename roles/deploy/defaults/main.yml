@@ -7,3 +7,5 @@ deploy_spring_datasource_url: "jdbc:postgresql://rc1a-knp27jjb37mp8r82.mdb.yande
 deploy_storage_s3_region: "ru-central1"
 deploy_storage_s3_bucket: "prod-users-files"
 deploy_storage_s3_endpoint: "https://storage.yandexcloud.net"
+deploy_app_loopback_host: "127.0.0.1"
+deploy_app_loopback_port: "8080"
